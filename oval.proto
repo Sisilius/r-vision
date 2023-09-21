@@ -1,0 +1,140 @@
+syntax = "proto3";
+
+package testovoe;
+
+
+// Тип записи
+enum ClassType {
+    PATCH = 0;
+    VULNERABILITY = 1;
+}
+
+// Типы данных
+enum VariableType {
+    BINARY = 0;
+    BOOLEAN = 1;
+    EVR_STRING = 2;
+    DEBIAN_EVR_STRING = 3;
+    FILESET_REVISION = 4;
+    FLOAT_VALUE = 5;
+    IOS_VERSION = 6;
+    INT = 7;
+    IPV4_ADDRESS = 8;
+    IPV6_ADDRESS = 9;
+    STRING = 10;
+    VERSION = 11;
+}
+
+// Типы действий
+enum CheckEnumeration {
+    ALL = 0;
+    AT_LEAST_ONE = 1;
+    NONE_SATISFY = 2;
+    ONLY_ONE = 3;
+}
+
+// Типы условий
+enum OperationEnumeration {
+    EQUALS = 0;
+    NOT_EQUAL = 1;
+    CASE_INSENSITIVE_EQUALS = 2;
+    CASE_INSENSITIVE_NOT_EQUAL = 3;
+    GREATER_THAN = 4;
+    LESS_THAN = 5;
+    GREATER_THAN_OR_EQUAL = 6;
+    LESS_THAN_OR_EQUAL = 7;
+    BITWISE_AND = 8;
+    BITWISE_OR = 9;
+    PATTERN_MATCH = 10;
+    SUBSET_OF = 11;
+    SUPERSET_OF = 12;
+}
+
+// Типы поддерживаемых операций (использовал только те,
+// что были нужны для реализации первых трёх записей)
+enum CheckTypes {
+    rpmverifyfile_test = 0;
+    rpminfo_test = 1;
+    textfilecontent54_test = 2;
+}
+
+enum Logic {
+    OR = 0;
+    AND = 1;
+}
+
+// Список уязвимостей/патчей
+message VulnerabilityList {
+  repeated Vulnerability vulnerability = 1;
+}
+
+message Cve {
+    string id = 1;
+    string cvss3 = 2;
+}
+
+message Criteria {
+    Logic operator = 1;
+    Criterion criterion = 2;
+    optional Criteria criteria = 3;
+}
+
+message Criterion {
+    CheckEnumeration check = 1;
+    CheckTypes check_type = 2;
+    optional Object object = 3;
+    optional State state = 4;
+}
+
+// Описание элемента из state и object
+message TypeContainer {
+    optional VariableType datatype = 1;
+    optional OperationEnumeration operation = 2;
+    optional string value = 3;
+}
+
+message ObjectBehaviors {
+    optional bool noconfigfiles = 1;
+    optional bool noghostfiles = 2;
+    optional bool nogroup = 3;
+    optional bool nolinkto = 4;
+    optional bool nomd5 = 5;
+    optional bool nomode = 6;
+    optional bool nomtime = 7;
+    optional bool nordev = 8;
+    optional bool nosize = 9;
+    optional bool nouser = 10;
+}
+
+message Object {
+    optional ObjectBehaviors behaviors = 1;
+    optional TypeContainer name = 2;
+    optional TypeContainer filepath = 3;
+    optional TypeContainer pattern = 4;
+    optional TypeContainer instance = 5;
+    optional TypeContainer epoch = 6;
+    optional TypeContainer version = 7;
+    optional TypeContainer release = 8;
+    optional TypeContainer arch = 9;
+    optional TypeContainer text = 10;
+}
+
+// Описание действий
+message State {
+    optional TypeContainer name = 1;
+    optional TypeContainer evr = 2;
+    optional TypeContainer signature_keyid = 3;
+    optional TypeContainer version = 4;
+    optional TypeContainer arch = 5;
+    optional TypeContainer text = 6;
+}
+
+message Vulnerability { 
+    ClassType class_ = 1;
+    string title = 2;
+    string description = 3;
+    string family = 4;
+    string id = 5;
+    repeated Cve cve = 6;
+    Criteria criteria = 7;
+}
